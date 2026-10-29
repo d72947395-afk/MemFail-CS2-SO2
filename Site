@@ -1,0 +1,653 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>memFail'CS2-SO2</title>
+<style>
+:root {
+  --bg: #090b10;
+  --panel: #121620;
+  --panel2: #191f2b;
+  --red: #ff3548;
+  --text: #f4f6fb;
+  --muted: #929aab;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, Arial, sans-serif;
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+header {
+  padding: 17px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #242936;
+  background: #0d1017;
+}
+.logo {
+  font-weight: 950;
+  font-size: clamp(19px, 4vw, 27px);
+  letter-spacing: -1.2px;
+}
+.logo span { color: var(--red); }
+.status {
+  color: #a4acba;
+  font-size: 11px;
+  border: 1px solid #303645;
+  border-radius: 20px;
+  padding: 7px 10px;
+}
+main { max-width: 1200px; margin: auto; padding: 25px 16px 50px; }
+.hero { margin-bottom: 22px; }
+.eyebrow {
+  color: var(--red);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+}
+h1 { font-size: clamp(28px, 5vw, 45px); margin: 8px 0; letter-spacing: -1.5px; }
+h1 em { color: var(--red); font-style: normal; }
+.hero p { color: var(--muted); margin: 0; line-height: 1.6; }
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(290px, .8fr);
+  gap: 18px;
+  align-items: start;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid #272e3b;
+  border-radius: 15px;
+  padding: 16px;
+  min-width: 0;
+}
+.panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 13px;
+  font-size: 14px;
+  font-weight: 850;
+}
+.small { color: var(--muted); font-size: 11px; font-weight: 500; }
+.preview-wrap {
+  background: #080a0e;
+  border: 1px solid #303747;
+  border-radius: 10px;
+  overflow: hidden;
+}
+canvas { display: block; width: 100%; height: auto; }
+.preview-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.field { margin-bottom: 15px; }
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 7px;
+}
+input[type="text"], textarea, select {
+  width: 100%;
+  color: white;
+  background: #0b0e14;
+  border: 1px solid #303747;
+  border-radius: 8px;
+  padding: 11px 12px;
+  outline: none;
+}
+textarea { resize: vertical; min-height: 72px; }
+input:focus, textarea:focus, select:focus { border-color: var(--red); }
+input[type="range"] { width: 100%; accent-color: var(--red); }
+input[type="file"] { display: none; }
+.file-label {
+  display: block;
+  text-align: center;
+  border: 1px dashed #515b70;
+  border-radius: 9px;
+  padding: 13px;
+  background: #0d1119;
+  color: #e5e9f1;
+  cursor: pointer;
+  font-size: 12px;
+}
+.file-label:hover { border-color: var(--red); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn {
+  border: 1px solid #343c4c;
+  color: #f2f4f9;
+  background: #202635;
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 12px;
+  transition: .15s;
+}
+.btn:hover { filter: brightness(1.2); }
+.btn-red {
+  background: var(--red);
+  border-color: var(--red);
+  color: white;
+}
+.btn-wide { width: 100%; margin-top: 8px; padding: 14px; font-size: 14px; }
+.divider { height: 1px; background: #29303d; margin: 17px 0; }
+.presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.preset {
+  background: #1a202c;
+  border: 1px solid #2c3444;
+  color: #e6e9f1;
+  text-align: left;
+  padding: 11px;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+.preset b { display: block; color: var(--red); margin-bottom: 4px; }
+.preset.active { border-color: var(--red); background: #28171f; }
+.tip { color: var(--muted); font-size: 11px; line-height: 1.6; margin-top: 13px; }
+footer {
+  text-align: center;
+  border-top: 1px solid #222834;
+  padding: 20px;
+  color: #6e7788;
+  font-size: 11px;
+}
+@media(max-width:760px) {
+  main { padding: 20px 12px 35px; }
+  .layout { grid-template-columns: 1fr; }
+  .panel { padding: 12px; }
+  header { padding: 14px; }
+  .status { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">memFail<span>'</span>CS2-SO2</div>
+  <div class="status">● MEME STUDIO / ONLINE</div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="eyebrow">COMMUNITY MEME GENERATOR</div>
+    <h1>Твоя катка. <em>Твой мем.</em></h1>
+    <p>Standoff 2 • CS2 • Гранаты • Тиммейты • Эпичные фейлы</p>
+  </section>
+
+  <div class="layout">
+    <section class="panel">
+      <div class="panel-title">
+        <span>ПРЕДПРОСМОТР</span>
+        <span class="small">1080 × 1080</span>
+      </div>
+      <div class="preview-wrap">
+        <canvas id="canvas" width="1080" height="1080"></canvas>
+      </div>
+      <div class="preview-footer">
+        <span>MEMFAIL ORIGINAL</span>
+        <span id="counter">MEM #001</span>
+      </div>
+      <button class="btn btn-red btn-wide" id="download">↓ СОХРАНИТЬ МЕМ В PNG</button>
+      <button class="btn btn-wide" id="reset">↺ СБРОСИТЬ РЕДАКТОР</button>
+      <div class="tip">Картинка сохраняется в высоком разрешении. Загруженные изображения обрабатываются в браузере.</div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title">
+        <span>РЕДАКТОР МЕМОВ</span>
+        <span class="small">v1.0</span>
+      </div>
+
+      <div class="field">
+        <label>1. ГОТОВЫЙ ШАБЛОН</label>
+        <div class="presets">
+          <button class="preset active" data-preset="grenade"><b>01 / GOAGATU</b>Достаю гранату...</button>
+          <button class="preset" data-preset="teammate"><b>02 / TEAMMATE</b>Тиммейт 0/12</button>
+          <button class="preset" data-preset="flash"><b>03 / FLASHBANG</b>Ослепил себя</button>
+          <button class="preset" data-preset="money"><b>04 / ECONOMY</b>Купил AWM</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label for="upload">2. СВОЯ КАРТИНКА</label>
+        <label class="file-label" for="upload">＋ ЗАГРУЗИТЬ ИЗОБРАЖЕНИЕ</label>
+        <input id="upload" type="file" accept="image/*">
+        <div class="small" id="fileName" style="margin-top:7px">Используется встроенный фон</div>
+      </div>
+
+      <div class="field">
+        <label for="topText">3. ТЕКСТ СВЕРХУ</label>
+        <textarea id="topText" maxlength="180">Я: спокойно достаю гранату и думаю, куда кинуть...</textarea>
+      </div>
+
+      <div class="field">
+        <label for="bottomText">4. ТЕКСТ СНИЗУ</label>
+        <textarea id="bottomText" maxlength="180">Тем временем противник с пулемётом:</textarea>
+      </div>
+
+      <div class="field">
+        <label for="fontSize">РАЗМЕР ТЕКСТА: <span id="fontValue">55</span> px</label>
+        <input id="fontSize" type="range" min="28" max="76" value="55">
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <label for="textColor">ЦВЕТ ТЕКСТА</label>
+          <select id="textColor">
+            <option value="#ffffff">Белый</option>
+            <option value="#ff3548">Красный</option>
+            <option value="#ffe45c">Жёлтый</option>
+            <option value="#72f5ff">Голубой</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="position">ПОЗИЦИЯ ТЕКСТА</label>
+          <select id="position">
+            <option value="classic">Классическая</option>
+            <option value="top">Сверху</option>
+            <option value="bottom">Снизу</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-red btn-wide" id="random">⚡ СЛУЧАЙНЫЙ ПРИКОЛ</button>
+      <p class="tip">Выбери шаблон, измени надписи или загрузи свой скриншот из игры. Предпросмотр обновляется автоматически.</p>
+    </section>
+  </div>
+</main>
+
+<footer>memFail'CS2-SO2 © 2026 · СОЗДАНО ДЛЯ ИГРОВОГО ЮМОРА</footer>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const $ = id => document.getElementById(id);
+
+const presets = {
+  grenade: {
+    top: 'Я: спокойно достаю гранату и думаю, куда кинуть...',
+    bottom: 'Тем временем противник с пулемётом:',
+    scene: 'grenade'
+  },
+  teammate: {
+    top: 'Тиммейт: «Я всё контролирую, прикрываю А!»',
+    bottom: 'Я открываю карту и вижу его на B:',
+    scene: 'teammate'
+  },
+  flash: {
+    top: 'Я: сейчас идеально ослеплю весь противник!',
+    bottom: 'Моя команда и я через секунду:',
+    scene: 'flash'
+  },
+  money: {
+    top: 'Я копил всю катку на AWM...',
+    bottom: 'Враг убивает меня с пистолета:',
+    scene: 'money'
+  }
+};
+
+let currentScene = 'grenade';
+let uploadedImage = null;
+let memeNumber = 1;
+
+function background() {
+  const g = ctx.createLinearGradient(0, 0, 1080, 1080);
+  g.addColorStop(0, '#38495b');
+  g.addColorStop(.5, '#92745b');
+  g.addColorStop(1, '#171a23');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 1080, 1080);
+
+  // Sky and dusty map
+  ctx.fillStyle = '#5c7f9b';
+  ctx.fillRect(0, 0, 1080, 430);
+
+  ctx.fillStyle = '#a78c70';
+  ctx.beginPath();
+  ctx.moveTo(0, 310);
+  ctx.lineTo(350, 270);
+  ctx.lineTo(470, 410);
+  ctx.lineTo(0, 500);
+  ctx.fill();
+
+  ctx.fillStyle = '#c0a083';
+  ctx.beginPath();
+  ctx.moveTo(710, 190);
+  ctx.lineTo(1080, 150);
+  ctx.lineTo(1080, 680);
+  ctx.lineTo(770, 580);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#96765b';
+  ctx.fillRect(0, 430, 1080, 650);
+
+  // Ground perspective
+  ctx.strokeStyle = 'rgba(36,29,25,.38)';
+  ctx.lineWidth = 4;
+  for (let i = -500; i < 1600; i += 170) {
+    ctx.beginPath();
+    ctx.moveTo(540, 440);
+    ctx.lineTo(i, 1080);
+    ctx.stroke();
+  }
+  for (let y = 530; y < 1080; y += 90) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(1080, y);
+    ctx.stroke();
+  }
+
+  // Wooden crate
+  ctx.fillStyle = '#61452f';
+  ctx.fillRect(65, 360, 260, 285);
+  ctx.strokeStyle = '#a17a50';
+  ctx.lineWidth = 8;
+  for (let y = 390; y < 640; y += 65) {
+    ctx.strokeRect(72, y, 245, 56);
+  }
+  ctx.strokeStyle = '#382d24';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(65, 360, 260, 285);
+
+  // Site sign
+  ctx.fillStyle = '#b82e38';
+  ctx.font = 'bold 85px Arial';
+  ctx.fillText('A', 865, 360);
+
+  // Smoke clouds
+  if (currentScene === 'grenade' || currentScene === 'flash') {
+    for (let i = 0; i < 18; i++) {
+      const x = 570 + Math.sin(i * 5) * 150 + i * 3;
+      const y = 450 + Math.cos(i * 3) * 110;
+      const r = 45 + (i % 4) * 22;
+      ctx.fillStyle = `rgba(165,166,161,${.06 + (i % 3) * .025})`;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Enemy silhouette
+  const ex = currentScene === 'teammate' ? 750 : 760;
+  ctx.fillStyle = '#17191d';
+  ctx.beginPath();
+  ctx.arc(ex, 455, 40, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(ex - 37, 495, 74, 125);
+  ctx.strokeStyle = '#17191d';
+  ctx.lineWidth = 35;
+  ctx.beginPath();
+  ctx.moveTo(ex - 15, 600);
+  ctx.lineTo(ex - 45, 715);
+  ctx.moveTo(ex + 15, 600);
+  ctx.lineTo(ex + 50, 715);
+  ctx.stroke();
+
+  // Weapon: grenade versus machine gun
+  ctx.save();
+  ctx.translate(ex - 15, 525);
+  ctx.rotate(.1);
+  ctx.fillStyle = '#252a2c';
+  if (currentScene === 'grenade') {
+    ctx.fillRect(-20, -95, 42, 155);
+    ctx.fillStyle = '#b3a27c';
+    ctx.fillRect(-15, -105, 32, 18);
+    ctx.fillStyle = '#171b1c';
+    ctx.fillRect(-9, -125, 20, 25);
+    ctx.strokeStyle = '#b4a98c';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(-15, -100, 32, 15);
+  } else {
+    ctx.fillRect(-100, -20, 220, 25);
+    ctx.fillRect(15, 0, 40, 65);
+    ctx.fillRect(-120, -15, 40, 12);
+    ctx.fillStyle = '#bb9a60';
+    for (let i = 0; i < 7; i++) {
+      ctx.fillRect(-25 + i * 5, 12, 3, 45);
+    }
+  }
+  ctx.restore();
+
+  // Player hand and grenade in foreground
+  ctx.fillStyle = '#111820';
+  ctx.beginPath();
+  ctx.moveTo(340, 1080);
+  ctx.lineTo(390, 880);
+  ctx.lineTo(505, 805);
+  ctx.lineTo(600, 840);
+  ctx.lineTo(560, 925);
+  ctx.lineTo(520, 1080);
+  ctx.fill();
+
+  if (currentScene === 'grenade') {
+    ctx.fillStyle = '#b7a178';
+    ctx.beginPath();
+    ctx.ellipse(490, 790, 65, 90, -.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#364a3b';
+    ctx.beginPath();
+    ctx.roundRect(460, 680, 65, 105, 17);
+    ctx.fill();
+
+    ctx.strokeStyle = '#b8b8a1';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(473, 674, 38, 16);
+    ctx.beginPath();
+    ctx.arc(495, 680, 16, Math.PI, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Dramatic vignette
+  const v = ctx.createRadialGradient(540, 450, 200, 540, 540, 850);
+  v.addColorStop(0, 'rgba(0,0,0,0)');
+  v.addColorStop(1, 'rgba(0,0,0,.65)');
+  ctx.fillStyle = v;
+  ctx.fillRect(0, 0, 1080, 1080);
+}
+
+function wrapText(text, maxWidth, fontSize) {
+  ctx.font = `900 ${fontSize}px Arial`;
+  const lines = [];
+  for (const paragraph of text.split('\n')) {
+    const words = paragraph.split(' ');
+    let line = '';
+    for (const word of words) {
+      const test = line ? line + ' ' + word : word;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else line = test;
+    }
+    if (line) lines.push(line);
+  }
+  return lines;
+}
+
+function drawCaption(text, y, maxWidth, size, color, align) {
+  if (!text.trim()) return;
+  const lines = wrapText(text, maxWidth, size);
+  const lineHeight = size * 1.15;
+  ctx.textAlign = align || 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `900 ${size}px Arial`;
+  ctx.lineJoin = 'round';
+
+  const startY = y - (lines.length - 1) * lineHeight / 2;
+  lines.forEach((line, i) => {
+    const yy = startY + i * lineHeight;
+    ctx.strokeStyle = 'rgba(0,0,0,.96)';
+    ctx.lineWidth = size * .19;
+    ctx.strokeText(line, 540, yy, maxWidth);
+    ctx.fillStyle = color;
+    ctx.fillText(line, 540, yy, maxWidth);
+  });
+}
+
+function drawHud() {
+  ctx.fillStyle = 'rgba(7,10,15,.78)';
+  ctx.fillRect(0, 0, 1080, 65);
+  ctx.fillStyle = '#f0f3f8';
+  ctx.font = 'bold 28px Arial';
+  ctx.textAlign = 'left';
+  ctx.fillText('memFail', 28, 42);
+  ctx.fillStyle = '#ff3548';
+  ctx.fillText('CS2 / SO2', 190, 42);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#cdd5df';
+  ctx.fillText('4     01:32     3', 1045, 42);
+}
+
+function draw() {
+  if (uploadedImage) {
+    const iw = uploadedImage.width;
+    const ih = uploadedImage.height;
+    const scale = Math.max(1080 / iw, 1080 / ih);
+    const w = iw * scale, h = ih * scale;
+    ctx.clearRect(0, 0, 1080, 1080);
+    ctx.drawImage(uploadedImage, (1080 - w) / 2, (1080 - h) / 2, w, h);
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    ctx.fillRect(0, 0, 1080, 1080);
+  } else {
+    background();
+  }
+
+  drawHud();
+
+  const size = Number($('fontSize').value);
+  const color = $('textColor').value;
+  const position = $('position').value;
+  const top = $('topText').value;
+  const bottom = $('bottomText').value;
+
+  if (position === 'classic' || position === 'top') {
+    drawCaption(top, 150, 980, size, color);
+  }
+  if (position === 'classic' || position === 'bottom') {
+    drawCaption(bottom, position === 'classic' ? 925 : 890, 980, size, color);
+  }
+
+  // Watermark
+  ctx.fillStyle = 'rgba(0,0,0,.65)';
+  ctx.fillRect(770, 1010, 280, 42);
+  ctx.font = 'bold 21px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#fff';
+  ctx.fillText("memFail'CS2-SO2", 1035, 1038);
+}
+
+function applyPreset(name) {
+  const p = presets[name];
+  if (!p) return;
+  currentScene = p.scene;
+  $('topText').value = p.top;
+  $('bottomText').value = p.bottom;
+  uploadedImage = null;
+  $('fileName').textContent = 'Используется встроенный фон';
+  $('upload').value = '';
+  document.querySelectorAll('.preset').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === name);
+  });
+  draw();
+}
+
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
+['topText','bottomText','fontSize','textColor','position'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    $('fontValue').textContent = $('fontSize').value;
+    draw();
+  });
+});
+
+$('upload').addEventListener('change', event => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    alert('Выбери файл изображения.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      uploadedImage = img;
+      $('fileName').textContent = file.name;
+      draw();
+    };
+    img.onerror = () => alert('Не удалось открыть изображение.');
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+$('download').addEventListener('click', () => {
+  draw();
+  canvas.toBlob(blob => {
+    if (!blob) {
+      alert('Не удалось сохранить изображение.');
+      return;
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "memFail-CS2-SO2-" + Date.now() + ".png";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    memeNumber++;
+    $('counter').textContent = 'MEM #' + String(memeNumber).padStart(3, '0');
+  }, 'image/png');
+});
+
+$('reset').addEventListener('click', () => {
+  $('fontSize').value = 55;
+  $('fontValue').textContent = '55';
+  $('textColor').value = '#ffffff';
+  $('position').value = 'classic';
+  applyPreset('grenade');
+});
+
+$('random').addEventListener('click', () => {
+  const jokes = [
+    ['Я достал гранату на полсекунды...', 'Враг уже оформил мне билет в лобби.'],
+    ['Тиммейт: «Я его почти убил!»', 'Враг: 100 HP.'],
+    ['Я купил AWM и занял позицию...', 'Враг убил меня через стену.'],
+    ['Я: сейчас будет идеальный флеш!', 'Вся моя команда: 👁️👄👁️'],
+    ['Я услышал шаги и приготовился...', 'Это был тиммейт с ножом.'],
+    ['Когда решил перезарядиться...', 'Враг выходит из-за угла.']
+  ];
+  const joke = jokes[Math.floor(Math.random() * jokes.length)];
+  $('topText').value = joke[0];
+  $('bottomText').value = joke[1];
+  currentScene = ['grenade','teammate','flash','money'][Math.floor(Math.random()*4)];
+  uploadedImage = null;
+  $('fileName').textContent = 'Используется встроенный фон';
+  $('upload').value = '';
+  document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+  draw();
+});
+
+draw();
+</script>
+</body>
+</html>
